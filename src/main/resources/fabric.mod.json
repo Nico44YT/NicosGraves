@@ -3,9 +3,15 @@
   "id": "nicos_graves",
   "version": "${version}",
   "name": "NicosGraves",
-  "description": "",
-  "authors": [],
-  "contact": {},
+  "description": "A grave mod so you don't lose your stuff",
+  "authors": [
+    "Nico_44"
+  ],
+  "contact": {
+    "homepage": "https://nico44yt.github.io/",
+    "sources": "https://github.com/Nico44YT/NicosGraves",
+    "issues": "https://github.com/Nico44YT/NicosGraves/issues"
+  },
   "license": "GPL-3.0",
   "icon": "assets/nicos_graves/icon.png",
   "environment": "*",
