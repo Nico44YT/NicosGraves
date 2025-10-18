@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "nicos_graves",
+  "version": "${version}",
+  "name": "NicosGraves",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "GPL-3.0",
+  "icon": "assets/nicos_graves/icon.png",
+  "environment": "*",
+  "accessWidener": "nicos_graves.accesswidener",
+  "entrypoints": {
+    "client": [
+      "nazario.nicosgraves.client.NicosGravesClient"
+    ],
+    "main": [
+      "nazario.nicosgraves.NicosGraves"
+    ]
+  },
+  "mixins": [
+    "nicos_graves.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}",
+    "liby_main": ">=3.0.0.0-1.20.1"
+  }
+}
