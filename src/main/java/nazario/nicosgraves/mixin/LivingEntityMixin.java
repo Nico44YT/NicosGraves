@@ -24,13 +24,13 @@ public abstract class LivingEntityMixin {
             if (!victimPlayer.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY) && victimPlayer.world.getGameRules().getBoolean(ModGamerules.SPAWN_PLAYER_GRAVES)) {
 
                 PlayerGraveEntity playerGrave = new PlayerGraveEntity(ModEntities.PLAYER_GRAVE, victimPlayer.world);
-                playerGrave.setPosition(victimPlayer.getPos());
+                playerGrave.setPosition(victimPlayer.getPos().getX(), victimPlayer.getPos().getY(), victimPlayer.getPos().getZ());
                 playerGrave.setGameProfile(victimPlayer);
                 playerGrave.resetInventory();
 
-                victimPlayer.getInventory().main.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
-                victimPlayer.getInventory().offHand.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
-                victimPlayer.getInventory().armor.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
+                victimPlayer.inventory.main.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
+                victimPlayer.inventory.offHand.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
+                victimPlayer.inventory.armor.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
 
                 playerGrave.setCustomName(victimPlayer.getDisplayName());
                 playerGrave.setCustomNameVisible(true);

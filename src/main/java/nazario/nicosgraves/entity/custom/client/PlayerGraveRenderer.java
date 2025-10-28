@@ -1,24 +1,24 @@
 package nazario.nicosgraves.entity.custom.client;
 
 import nazario.nicosgraves.entity.custom.PlayerGraveEntity;
+import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3f;
 
 public class PlayerGraveRenderer extends LivingEntityRenderer<PlayerGraveEntity, PlayerGraveEntityModel<PlayerGraveEntity>> {
 
-    public PlayerGraveRenderer(EntityRendererFactory.Context ctx) {
-        super(ctx, new PlayerGraveEntityModel<>(), 0.3f);
+    public PlayerGraveRenderer(EntityRenderDispatcher dispatcher, EntityRendererRegistry.Context context) {
+        super(dispatcher, new PlayerGraveEntityModel<>(), 0.3f);
     }
 
     @Override
@@ -26,14 +26,6 @@ public class PlayerGraveRenderer extends LivingEntityRenderer<PlayerGraveEntity,
         ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
 
         ItemStack stack = new ItemStack(Items.SKELETON_SKULL);
-
-        if(entity.getGameProfile() != null) {
-            NbtCompound skullOwnerNbt = new NbtCompound();
-            NbtHelper.writeGameProfile(skullOwnerNbt, entity.getGameProfile());
-
-            stack = new ItemStack(Items.PLAYER_HEAD);
-            stack.getOrCreateNbt().put("SkullOwner", skullOwnerNbt);
-        }
 
         matrixStack.push();
 
@@ -44,7 +36,7 @@ public class PlayerGraveRenderer extends LivingEntityRenderer<PlayerGraveEntity,
 
         matrixStack.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion((entity.getWorld().getTime() + tickDelta) * 2.5f));
 
-        itemRenderer.renderItem(stack, ModelTransformation.Mode.GROUND, false, matrixStack, vertexConsumers, light, 0, itemRenderer.getHeldItemModel(stack, entity.getWorld(), null, 0));
+        itemRenderer.renderItem(stack, ModelTransformation.Mode.GROUND, false, matrixStack, vertexConsumers, light, 0, itemRenderer.getHeldItemModel(stack, entity.getWorld(), null));
 
         matrixStack.pop();
 

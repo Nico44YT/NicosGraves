@@ -116,7 +116,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
                 if(getWorld().isClient) return true;
 
                 this.dropInventory();
-                this.discard();
+                this.remove();
                 return true;
             }
         }
@@ -136,7 +136,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
             return ActionResult.PASS;
         }
 
-        this.open(this::emitGameEvent, player);
+        this.open(player);
         return ActionResult.SUCCESS; // Prevents further interaction processing
     }
 
@@ -146,7 +146,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
             ItemEntity itemEntity = new ItemEntity(EntityType.ITEM, getWorld());
 
             itemEntity.setStack(inventory.get(i));
-            itemEntity.setPosition(this.getPos());
+            itemEntity.setPosition(this.getPos().getX(), this.getPos().getY(), this.getPos().getZ());
 
             getWorld().spawnEntity(itemEntity);
         }
@@ -183,6 +183,11 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     @Override
     public World getWorld() {
         return world;
+    }
+
+    @Override
+    public boolean isRemoved() {
+        return isDead() || removed;
     }
 
     @Override

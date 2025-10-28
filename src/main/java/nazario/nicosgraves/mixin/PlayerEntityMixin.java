@@ -21,9 +21,9 @@ public abstract class PlayerEntityMixin {
 
         if(player.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) return;
 
-        player.getInventory().main.forEach(stack -> grimoire$dropAndDecrement(stack, player));
-        player.getInventory().offHand.forEach(stack -> grimoire$dropAndDecrement(stack, player));
-        player.getInventory().armor.forEach(stack -> grimoire$dropAndDecrement(stack, player));
+        player.inventory.main.forEach(stack -> grimoire$dropAndDecrement(stack, player));
+        player.inventory.offHand.forEach(stack -> grimoire$dropAndDecrement(stack, player));
+        player.inventory.armor.forEach(stack -> grimoire$dropAndDecrement(stack, player));
 
         ci.cancel();
     }
@@ -44,6 +44,6 @@ abstract class ServerPlayerEntityMixin {
     private void grimoire$copyFrom(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
         ServerPlayerEntity player = (ServerPlayerEntity)(Object)this;
         if(player.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) return;
-        player.getInventory().clone(oldPlayer.getInventory());
+        player.inventory.clone(oldPlayer.inventory);
     }
 }

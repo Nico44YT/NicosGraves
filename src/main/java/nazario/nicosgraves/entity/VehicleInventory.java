@@ -8,7 +8,6 @@ import net.minecraft.entity.mob.PiglinBrain;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.StackReference;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootTable;
 import net.minecraft.loot.context.LootContext;
@@ -17,7 +16,6 @@ import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
@@ -26,7 +24,6 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -93,10 +90,9 @@ public interface VehicleInventory extends Inventory, NamedScreenHandlerFactory {
 		}
 	}
 
-	default ActionResult open(BiConsumer<GameEvent, Entity> gameEventEmitter, PlayerEntity player) {
+	default ActionResult open(PlayerEntity player) {
 		player.openHandledScreen(this);
 		if (!player.world.isClient) {
-			gameEventEmitter.accept(GameEvent.CONTAINER_OPEN, player);
 			PiglinBrain.onGuardedBlockInteracted(player, true);
 			return ActionResult.CONSUME;
 		} else {
@@ -108,9 +104,6 @@ public interface VehicleInventory extends Inventory, NamedScreenHandlerFactory {
 		MinecraftServer minecraftServer = this.getWorld().getServer();
 		if (this.getLootTableId() != null && minecraftServer != null) {
 			LootTable lootTable = minecraftServer.getLootManager().getTable(this.getLootTableId());
-			if (player != null) {
-				Criteria.PLAYER_GENERATES_CONTAINER_LOOT.trigger((ServerPlayerEntity)player, this.getLootTableId());
-			}
 
 			this.setLootTableId((Identifier)null);
 			LootContext.Builder builder = (new LootContext.Builder((ServerWorld)this.getWorld())).parameter(LootContextParameters.ORIGIN, this.getPos()).random(this.getLootTableSeed());
@@ -171,19 +164,6 @@ public interface VehicleInventory extends Inventory, NamedScreenHandlerFactory {
 			stack.setCount(this.getMaxCountPerStack());
 		}
 
-	}
-
-	default StackReference getInventoryStackReference(final int slot) {
-		return slot >= 0 && slot < this.size() ? new StackReference() {
-			public ItemStack get() {
-				return VehicleInventory.this.getInventoryStack(slot);
-			}
-
-			public boolean set(ItemStack stack) {
-				VehicleInventory.this.setInventoryStack(slot, stack);
-				return true;
-			}
-		} : StackReference.EMPTY;
 	}
 
 	default boolean canPlayerAccess(PlayerEntity player) {
