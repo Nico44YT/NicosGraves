@@ -29,10 +29,10 @@ public class PlayerGraveRenderer extends LivingEntityRenderer<PlayerGraveEntity,
 
         if(entity.getGameProfile() != null) {
             NbtCompound skullOwnerNbt = new NbtCompound();
-            NbtHelper.writeGameProfile(skullOwnerNbt, entity.getGameProfile());
+            //NbtHelper.writeGameProfile(skullOwnerNbt, entity.getGameProfile());
 
             stack = new ItemStack(Items.PLAYER_HEAD);
-            stack.getOrCreateNbt().put("SkullOwner", skullOwnerNbt);
+            //stack.getOrCreateNbt().put("SkullOwner", skullOwnerNbt);
         }
 
         matrixStack.push();
@@ -49,7 +49,7 @@ public class PlayerGraveRenderer extends LivingEntityRenderer<PlayerGraveEntity,
         matrixStack.pop();
 
         if(entity.getCustomName() != null) {
-            this.renderLabelIfPresent(entity, entity.getCustomName(), matrixStack, vertexConsumers, light);
+            this.renderLabelIfPresent(entity, entity.getCustomName(), matrixStack, vertexConsumers, light, tickDelta);
         }
     }
     @Override

@@ -15,15 +15,15 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.vehicle.VehicleInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.*;
+import net.minecraft.loot.LootTable;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -55,8 +55,8 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
 
-        Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory());
-        this.playerGameProfile = NbtHelper.toGameProfile(nbt.getCompound("player_profile"));
+        Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory(), getWorld().getRegistryManager());
+        //this.playerGameProfile = NbtHelper.toGameProfile(nbt.getCompound("player_profile"));
     }
 
     @Override
@@ -64,10 +64,10 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         super.writeCustomDataToNbt(nbt);
 
         NbtCompound inventoryNbt = new NbtCompound();
-        Inventories.writeNbt(inventoryNbt, this.getInventory());
+        Inventories.writeNbt(inventoryNbt, this.getInventory(), getWorld().getRegistryManager());
 
         NbtCompound gameProfileNbt = new NbtCompound();
-        NbtHelper.writeGameProfile(gameProfileNbt, this.getGameProfile());
+        //NbtHelper.writeGameProfile(gameProfileNbt, this.getGameProfile());
 
         nbt.put("inventory", inventoryNbt);
         nbt.put("player_profile", gameProfileNbt);
@@ -273,12 +273,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
 
     //region// No clue //
     @Override
-    public @Nullable Identifier getLootTableId() {
-        return null;
-    }
-
-    @Override
-    public void setLootTableId(@Nullable Identifier lootTableId) {
+    public void setLootTable(@Nullable RegistryKey<LootTable> lootTable) {
 
     }
 

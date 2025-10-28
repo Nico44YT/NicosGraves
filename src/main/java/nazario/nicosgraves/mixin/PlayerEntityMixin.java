@@ -5,8 +5,10 @@ import nazario.nicosgraves.util.ModTags;
 import nazario.nicosgraves.util.TrinketsHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.tag.EnchantmentTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
@@ -41,7 +43,7 @@ public abstract class PlayerEntityMixin {
         if(player.getWorld().isClient) return;
 
         if(!(stack.getItem().getRegistryEntry().isIn(ModTags.ItemTags.SOULBOUND_ITEMS))) {
-            if(!player.getWorld().getGameRules().getBoolean(ModGamerules.SPAWN_PLAYER_GRAVES) && !EnchantmentHelper.hasVanishingCurse(stack)) player.dropStack(stack.copy());
+            if(!player.getWorld().getGameRules().getBoolean(ModGamerules.SPAWN_PLAYER_GRAVES) && !EnchantmentHelper.getEnchantments(stack).getEnchantments().contains(Enchantments.VANISHING_CURSE)) player.dropStack(stack.copy());
             stack.setCount(0);
         }
     }
