@@ -4,26 +4,25 @@ import com.mojang.authlib.GameProfile;
 import nazario.nicosgraves.api.SoulboundItem;
 import nazario.nicosgraves.entity.VehicleInventory;
 import nazario.nicosgraves.util.ModTags;
+import net.minecraft.container.Container;
+import net.minecraft.container.GenericContainer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.*;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.tag.FluidTags;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Arm;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.loot.LootTable;
+import net.minecraft.loot.context.LootContext;
+import net.minecraft.loot.context.LootContextParameters;
+import net.minecraft.loot.context.LootContextTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.*;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -43,32 +42,34 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         this.inventory = DefaultedList.ofSize(MAX_SIZE, ItemStack.EMPTY);
     }
 
-    public static DefaultAttributeContainer.Builder createAttributes() {
-        return LivingEntity.createLivingAttributes()
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0f)
-                .add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 100f)
-                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 0f);
+
+
+    //public static DefaultAttributeContainer.Builder createAttributes() {
+    //    return LivingEntity.createLivingAttributes()
+    //            .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0f)
+    //            .add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 100f)
+    //            .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 0f);
+    //}
+
+    @Override
+    public void readCustomDataFromTag(CompoundTag tag) {
+        super.readCustomDataFromTag(tag);
+
+        Inventories.fromTag(tag.getCompound("inventory"), this.getInventory());
+
     }
 
     @Override
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        super.readCustomDataFromNbt(nbt);
+    public void writeCustomDataToTag(CompoundTag tag) {
+        super.writeCustomDataToTag(tag);
 
-        Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory());
-        //this.playerGameProfile = NbtHelper.toGameProfile(nbt.getCompound("player_profile"));
-    }
+        CompoundTag inventoryNbt = new CompoundTag();
+        Inventories.toTag(inventoryNbt, this.getInventory());
 
-    @Override
-    public void writeCustomDataToNbt(NbtCompound nbt) {
-        super.writeCustomDataToNbt(nbt);
-
-        NbtCompound inventoryNbt = new NbtCompound();
-        Inventories.writeNbt(inventoryNbt, this.getInventory());
-
-        //NbtCompound gameProfileNbt = new NbtCompound();
+        //CompoundTag gameProfileNbt = new CompoundTag();
         //NbtHelper.writeGameProfile(gameProfileNbt, this.getGameProfile());
 
-        nbt.put("inventory", inventoryNbt);
+        tag.put("inventory", inventoryNbt);
         //nbt.put("player_profile", gameProfileNbt);
     }
 
@@ -98,11 +99,11 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         super.tick();
 
         float f = this.getStandingEyeHeight();
-        if (this.isTouchingWater() && this.getFluidHeight(FluidTags.WATER) > (double)f) {
+        if (this.isTouchingWater() && this.getHeight() > (double)f) {
             this.applyWaterBuoyancy();
             this.velocityDirty = true;
             this.velocityModified = true;
-        } else if (this.isInLava() && this.getFluidHeight(FluidTags.LAVA) > (double)f) {
+        } else if (this.isInLava() && this.getHeight() > (double)f) {
             this.applyLavaBuoyancy();
             this.velocityDirty = true;
             this.velocityModified = true;
@@ -123,21 +124,49 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         return false;
     }
 
+    public Container getContainer(int syncId, PlayerInventory playerInventory) {
+        return GenericContainer.createGeneric9x6(syncId, playerInventory, this);
+    }
+
     @Override
-    public ActionResult interact(PlayerEntity player, Hand hand) {
+    public @Nullable Container createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity playerEntity) {
+        if (playerEntity.isSpectator()) {
+            return null;
+        } else {
+            this.method_7563(playerInventory.player);
+            return this.getContainer(syncId, playerInventory);
+        }
+    }
+
+    public void method_7563(@Nullable PlayerEntity playerEntity) {
+        if (this.getLootTableId() != null && this.world.getServer() != null) {
+            LootTable lootTable = this.world.getServer().getLootManager().getSupplier(this.getLootTableId());
+            this.setLootTableId(null);
+            LootContext.Builder builder = (new LootContext.Builder((ServerWorld)this.world)).put(LootContextParameters.POSITION, new BlockPos(this)).setRandom(this.getLootTableSeed());
+            if (playerEntity != null) {
+                builder.setLuck(playerEntity.getLuck()).put(LootContextParameters.THIS_ENTITY, playerEntity);
+            }
+
+            lootTable.supplyInventory(this, builder.build(LootContextTypes.CHEST));
+        }
+
+    }
+
+    @Override
+    public boolean interact(PlayerEntity player, Hand hand) {
         if(player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof BowItem ||
                 player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof ShieldItem ||
                 player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof TridentItem ||
                 player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof FishingRodItem ||
                 player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof CrossbowItem
-        ) return ActionResult.PASS;
+        ) return true;
 
         if (player.world.isClient) {
-            return ActionResult.PASS;
+            return false;
         }
 
         this.open(player);
-        return ActionResult.SUCCESS; // Prevents further interaction processing
+        return false; // Prevents further interaction processing
     }
 
     @Override
@@ -146,7 +175,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
             ItemEntity itemEntity = new ItemEntity(EntityType.ITEM, getWorld());
 
             itemEntity.setStack(inventory.get(i));
-            itemEntity.setPosition(this.getPos().getX(), this.getPos().getY(), this.getPos().getZ());
+            itemEntity.setPos(this.getPos().getX(), this.getPos().getY(), this.getPos().getZ());
 
             getWorld().spawnEntity(itemEntity);
         }
@@ -164,7 +193,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         if(stack.getItem().equals(Items.AIR)) return;
         for(int i = 0;i<MAX_SIZE;i++) {
             if(inventory.get(i).getItem().equals(Items.AIR)) {
-                setInventoryStack(i, stack);
+                setInvStack(i, stack);
                 break;
             }
         }
@@ -187,21 +216,21 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
 
     @Override
     public boolean isRemoved() {
-        return isDead() || removed;
+        return removed;
     }
 
     @Override
-    public int size() {
+    public int getInvSize() {
         return MAX_SIZE;
     }
 
     @Override
-    public ItemStack getStack(int slot) {
+    public ItemStack getInvStack(int slot) {
         return inventory.get(slot);
     }
 
     @Override
-    public ItemStack removeStack(int slot, int amount) {
+    public ItemStack takeInvStack(int slot, int amount) {
         ItemStack currentStack = inventory.get(slot);
         if (currentStack.isEmpty()) {
             return ItemStack.EMPTY;
@@ -219,28 +248,18 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     }
 
     @Override
-    public ItemStack removeStack(int slot) {
+    public ItemStack removeInvStack(int slot) {
         return inventory.set(slot, ItemStack.EMPTY);
     }
 
     @Override
-    public void setStack(int slot, ItemStack stack) {
+    public void setInvStack(int slot, ItemStack stack) {
         inventory.set(slot, stack);
     }
 
     @Override
     public void markDirty() {
 
-    }
-
-    @Override
-    public boolean canPlayerUse(PlayerEntity player) {
-        return true;
-    }
-
-    @Override
-    public @Nullable ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-        return GenericContainerScreenHandler.createGeneric9x6(syncId, inv, this);
     }
 
     @Override
@@ -272,11 +291,6 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
 
     @Override
     public boolean isPushable() {
-        return false;
-    }
-
-    @Override
-    public boolean isPushedByFluids() {
         return false;
     }
 

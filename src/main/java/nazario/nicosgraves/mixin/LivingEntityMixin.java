@@ -24,8 +24,7 @@ public abstract class LivingEntityMixin {
             if (!victimPlayer.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY) && victimPlayer.world.getGameRules().getBoolean(ModGamerules.SPAWN_PLAYER_GRAVES)) {
 
                 PlayerGraveEntity playerGrave = new PlayerGraveEntity(ModEntities.PLAYER_GRAVE, victimPlayer.world);
-                playerGrave.setPosition(victimPlayer.getPos().getX(), victimPlayer.getPos().getY(), victimPlayer.getPos().getZ());
-                playerGrave.setGameProfile(victimPlayer);
+                playerGrave.setPos(victimPlayer.getPos().getX(), victimPlayer.getPos().getY(), victimPlayer.getPos().getZ());
                 playerGrave.resetInventory();
 
                 victimPlayer.inventory.main.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
@@ -34,6 +33,8 @@ public abstract class LivingEntityMixin {
 
                 playerGrave.setCustomName(victimPlayer.getDisplayName());
                 playerGrave.setCustomNameVisible(true);
+                playerGrave.setJumping(false);
+                playerGrave.setVelocity(0, 0, 0);
                 victimPlayer.world.spawnEntity(playerGrave);
             }
         }
