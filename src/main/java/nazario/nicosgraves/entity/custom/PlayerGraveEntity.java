@@ -17,9 +17,9 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.tag.FluidTags;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
@@ -56,7 +56,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         super.readCustomDataFromNbt(nbt);
 
         Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory());
-        this.playerGameProfile = NbtHelper.toGameProfile(nbt.getCompound("player_profile"));
+        //this.playerGameProfile = NbtHelper.toGameProfile(nbt.getCompound("player_profile"));
     }
 
     @Override
@@ -66,11 +66,11 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         NbtCompound inventoryNbt = new NbtCompound();
         Inventories.writeNbt(inventoryNbt, this.getInventory());
 
-        NbtCompound gameProfileNbt = new NbtCompound();
-        NbtHelper.writeGameProfile(gameProfileNbt, this.getGameProfile());
+        //NbtCompound gameProfileNbt = new NbtCompound();
+        //NbtHelper.writeGameProfile(gameProfileNbt, this.getGameProfile());
 
         nbt.put("inventory", inventoryNbt);
-        nbt.put("player_profile", gameProfileNbt);
+        //nbt.put("player_profile", gameProfileNbt);
     }
 
     public void setGameProfile(PlayerEntity player) {
@@ -137,7 +137,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
             return ActionResult.PASS;
         }
 
-        this.open(player);
+        this.open(this::emitGameEvent, player);
         return ActionResult.SUCCESS; // Prevents further interaction processing
     }
 
@@ -272,6 +272,10 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     }
 
     //region// No clue //
+    @Override
+    public long getLootTableSeed() {
+        return 0;
+    }
     @Override
     public @Nullable Identifier getLootTableId() {
         return null;
