@@ -34,8 +34,6 @@ dependencies {
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modApi files("./libs/liby_main-3.0.0.0-1.20.1.jar")
-
     modImplementation "dev.emi:trinkets:${project.trinkets_version}"
 
     modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cca_version}"
