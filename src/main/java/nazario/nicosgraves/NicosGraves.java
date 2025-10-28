@@ -21,6 +21,6 @@ public class NicosGraves implements ModInitializer {
     }
 
     public static Identifier id(String name) {
-        return Identifier.of(MOD_ID, name);
+        return new Identifier(MOD_ID, name);
     }
 }
