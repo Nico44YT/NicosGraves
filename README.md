@@ -6,7 +6,7 @@ Is the chance of losing all your items in a lava pit too punishing for you?
 
 #### Generel Info
 - The graves can be toggled with the gamerule `nicos_graves:spawn_player_graves`.
-- [Trinkets](https://modrinth.com/mod/trinkets) is automatically supported.
+- [Trinkets](https://modrinth.com/mod/trinkets) is **NOT** supported for this version.
 
 ### Developer/Modpack Info
 To make an item soulbound, essentially making the item be kept on death, the item can be added to the tag `data/nicos_graves/tags/items/soulbound.json`.

@@ -44,7 +44,7 @@ public class PlayerGraveRenderer extends LivingEntityRenderer<PlayerGraveEntity,
 
         matrixStack.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion((entity.getWorld().getTime() + tickDelta) * 2.5f));
 
-        itemRenderer.renderItem(stack, ModelTransformation.Mode.GROUND, false, matrixStack, vertexConsumers, light, 0, itemRenderer.getModel(stack, entity.getWorld(), null, 0));
+        itemRenderer.renderItem(stack, ModelTransformation.Mode.GROUND, false, matrixStack, vertexConsumers, light, 0, itemRenderer.getHeldItemModel(stack, entity.getWorld(), null, 0));
 
         matrixStack.pop();
 

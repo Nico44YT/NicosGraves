@@ -132,7 +132,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
                 player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof CrossbowItem
         ) return ActionResult.PASS;
 
-        if (player.getWorld().isClient) {
+        if (player.world.isClient) {
             return ActionResult.PASS;
         }
 
@@ -154,7 +154,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     }
 
     public void addInventoryStackCheckSoulbound(ItemStack stack, PlayerEntity victimPlayer) {
-        if(stack.getItem().getRegistryEntry().isIn(ModTags.ItemTags.SOULBOUND_ITEMS) || (stack.getItem() instanceof SoulboundItem soulboundItem && soulboundItem.isRetained(stack, victimPlayer, victimPlayer.getWorld()))) return;
+        if(ModTags.ItemTags.SOULBOUND_ITEMS.contains(stack.getItem()) || (stack.getItem() instanceof SoulboundItem soulboundItem && soulboundItem.isRetained(stack, victimPlayer, victimPlayer.world))) return;
         this.addInventoryStack(stack);
     }
 
@@ -178,6 +178,11 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     @Override
     public void resetInventory() {
         this.inventory = DefaultedList.ofSize(MAX_SIZE, ItemStack.EMPTY);
+    }
+
+    @Override
+    public World getWorld() {
+        return world;
     }
 
     @Override

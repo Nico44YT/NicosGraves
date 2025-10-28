@@ -3,8 +3,6 @@ package nazario.nicosgraves.mixin;
 import nazario.nicosgraves.entity.ModEntities;
 import nazario.nicosgraves.entity.custom.PlayerGraveEntity;
 import nazario.nicosgraves.util.ModGamerules;
-import nazario.nicosgraves.util.TrinketsHelper;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,10 +20,10 @@ public abstract class LivingEntityMixin {
 
         if (thisEntity instanceof PlayerEntity victimPlayer) {
 
-            if (victimPlayer.getWorld() == null) return;
-            if (!victimPlayer.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY) && victimPlayer.getWorld().getGameRules().getBoolean(ModGamerules.SPAWN_PLAYER_GRAVES)) {
+            if (victimPlayer.world == null) return;
+            if (!victimPlayer.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY) && victimPlayer.world.getGameRules().getBoolean(ModGamerules.SPAWN_PLAYER_GRAVES)) {
 
-                PlayerGraveEntity playerGrave = new PlayerGraveEntity(ModEntities.PLAYER_GRAVE, victimPlayer.getWorld());
+                PlayerGraveEntity playerGrave = new PlayerGraveEntity(ModEntities.PLAYER_GRAVE, victimPlayer.world);
                 playerGrave.setPosition(victimPlayer.getPos());
                 playerGrave.setGameProfile(victimPlayer);
                 playerGrave.resetInventory();
@@ -34,17 +32,9 @@ public abstract class LivingEntityMixin {
                 victimPlayer.getInventory().offHand.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
                 victimPlayer.getInventory().armor.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
 
-                if (FabricLoader.getInstance().isModLoaded("trinkets")) {
-                    try {
-                        TrinketsHelper.findAllEquippedBy(victimPlayer).forEach((stack) -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
-                        TrinketsHelper.clearAllEquippedTrinkets(victimPlayer);
-                    } catch (Exception ignored) {
-                    }
-                }
-
                 playerGrave.setCustomName(victimPlayer.getDisplayName());
                 playerGrave.setCustomNameVisible(true);
-                victimPlayer.getWorld().spawnEntity(playerGrave);
+                victimPlayer.world.spawnEntity(playerGrave);
             }
         }
     }

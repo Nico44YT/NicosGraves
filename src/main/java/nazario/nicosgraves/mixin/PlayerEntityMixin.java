@@ -2,8 +2,6 @@ package nazario.nicosgraves.mixin;
 
 import nazario.nicosgraves.util.ModGamerules;
 import nazario.nicosgraves.util.ModTags;
-import nazario.nicosgraves.util.TrinketsHelper;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -21,27 +19,21 @@ public abstract class PlayerEntityMixin {
     private void grimoire$preDropInventory(CallbackInfo ci) {
         PlayerEntity player = (PlayerEntity)(Object)this;
 
-        if(player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) return;
+        if(player.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) return;
 
         player.getInventory().main.forEach(stack -> grimoire$dropAndDecrement(stack, player));
         player.getInventory().offHand.forEach(stack -> grimoire$dropAndDecrement(stack, player));
         player.getInventory().armor.forEach(stack -> grimoire$dropAndDecrement(stack, player));
-
-        if (FabricLoader.getInstance().isModLoaded("trinkets")) {
-            try {
-                TrinketsHelper.findAllEquippedBy(player).forEach(stack -> grimoire$dropAndDecrement(stack, player));
-            } catch (Exception ignored) {}
-        }
 
         ci.cancel();
     }
 
     @Unique
     private void grimoire$dropAndDecrement(ItemStack stack, PlayerEntity player) {
-        if(player.getWorld().isClient) return;
+        if(player.world.isClient) return;
 
-        if(!(stack.getItem().getRegistryEntry().isIn(ModTags.ItemTags.SOULBOUND_ITEMS))) {
-            if(!player.getWorld().getGameRules().getBoolean(ModGamerules.SPAWN_PLAYER_GRAVES) && !EnchantmentHelper.hasVanishingCurse(stack)) player.dropStack(stack.copy());
+        if(!(ModTags.ItemTags.SOULBOUND_ITEMS.contains(stack.getItem()))) {
+            if(!player.world.getGameRules().getBoolean(ModGamerules.SPAWN_PLAYER_GRAVES) && !EnchantmentHelper.hasVanishingCurse(stack)) player.dropStack(stack.copy());
             stack.setCount(0);
         }
     }
@@ -51,7 +43,7 @@ abstract class ServerPlayerEntityMixin {
     @Inject(method = "copyFrom", at = @At(value = "TAIL"))
     private void grimoire$copyFrom(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
         ServerPlayerEntity player = (ServerPlayerEntity)(Object)this;
-        if(player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) return;
+        if(player.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) return;
         player.getInventory().clone(oldPlayer.getInventory());
     }
 }
