@@ -1,5 +1,4 @@
 ![Created for Remnants SMP](https://cdn.modrinth.com/data/cached_images/199461d5e18f8ecddc82a29008a2889edea3ffb7_0.webp)
-[![Requires Liby](https://cdn.modrinth.com/data/UsIxG2yq/images/a2ddcc545dd795a1b14d5ceb4b5eaa9d7780264b.png)](https://www.modrinth.com/mod/liby)
 
 ![Showcase](https://github.com/Nico44YT/NicosGraves/blob/fabric-1.20.1/promo/NicosGraves-Showcase.gif?raw=true)
 
