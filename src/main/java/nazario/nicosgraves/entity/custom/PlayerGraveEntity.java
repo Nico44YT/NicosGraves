@@ -18,7 +18,11 @@ import net.minecraft.loot.LootTable;
 //?}
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.*;
+//? >=1.17 {
 import net.minecraft.nbt.NbtCompound;
+//?} else {
+/*import net.minecraft.nbt.CompoundTag;
+*///?}
 //? >=1.20 {
 import net.minecraft.registry.RegistryKey;
 //?}
@@ -53,31 +57,52 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
                 .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 0f);
     }
 
+    //? if >=1.17 {
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
-
+    
         //? if >=1.21 {
         Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory(), getWorld().getRegistryManager());
         //?} else {
         /*Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory());
         *///?}
     }
-
+    
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
-
+    
         NbtCompound inventoryNbt = new NbtCompound();
-
+    
         //? if >=1.21 {
         Inventories.writeNbt(inventoryNbt, this.getInventory(), getWorld().getRegistryManager());
         //?} else {
         /*Inventories.writeNbt(inventoryNbt, this.getInventory());
         *///?}
-
+    
         nbt.put("inventory", inventoryNbt);
     }
+    //?} else {
+    /*@Override
+    public void readCustomDataFromTag(CompoundTag tag) {
+        super.readCustomDataFromTag(tag);
+
+        Inventories.fromTag(tag.getCompound("inventory"), this.getInventory());
+    }
+
+    @Override
+    public void writeCustomDataToTag(CompoundTag tag) {
+        super.writeCustomDataToTag(tag);
+
+        CompoundTag inventoryNbt = new CompoundTag();
+
+        Inventories.toTag(inventoryNbt, this.getInventory());
+
+        tag.put("inventory", inventoryNbt);
+    }
+
+    *///?}
 
     private void applyWaterBuoyancy() {
         Vec3d vec3d = this.getVelocity();
@@ -124,7 +149,11 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
                 if(getWorld().isClient) return true;
 
                 this.dropInventory();
+                //? >=1.17 {
                 this.discard();
+                //?} else {
+                /*this.remove();
+                *///?}
                 return true;
             }
         }
@@ -140,15 +169,23 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
                 player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof CrossbowItem
         ) return ActionResult.PASS;
 
+        //? if >1.17 {
         if (player.getWorld().isClient) {
             return ActionResult.PASS;
         }
+        //?} else {
+        /*if (player.world.isClient) {
+            return ActionResult.PASS;
+        }
+        *///?}
 
         //? if >=1.20 {
         this.open(player);
-        //?} else {
+        //?} else if >=1.17 {
         /*this.open(this::emitGameEvent, player);
-        *///?}
+        *///?} else {
+
+        //?}
 
         return ActionResult.SUCCESS; // Prevents further interaction processing
     }
@@ -171,6 +208,8 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         if(stack.getItem().getRegistryEntry().isIn(ModTags.ItemTags.SOULBOUND_ITEMS) || (stack.getItem() instanceof SoulboundItem soulboundItem && soulboundItem.isRetained(stack, victimPlayer, victimPlayer.getWorld()))) return;
         //?} else if >=1.17.1 {
         /*if(ModTags.ItemTags.SOULBOUND_ITEMS.contains(stack.getItem()) || (stack.getItem() instanceof SoulboundItem soulboundItem && soulboundItem.isRetained(stack, victimPlayer, victimPlayer.getWorld()))) return;
+        *///?} else {
+        /*if(ModTags.ItemTags.SOULBOUND_ITEMS.contains(stack.getItem()) || (stack.getItem() instanceof SoulboundItem soulboundItem && soulboundItem.isRetained(stack, victimPlayer, victimPlayer.world))) return;
         *///?}
         this.addInventoryStack(stack);
     }
@@ -315,6 +354,13 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     /*@Override
     public long getLootTableSeed() {
         return 0;
+    }
+    *///?}
+
+    //? if <=1.17 {
+    /*@Override
+    public World getWorld() {
+        return this.world;
     }
     *///?}
     //endregion

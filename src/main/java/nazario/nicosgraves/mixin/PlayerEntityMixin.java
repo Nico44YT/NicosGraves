@@ -20,7 +20,11 @@ public abstract class PlayerEntityMixin {
     private void grimoire$preDropInventory(CallbackInfo ci) {
         PlayerEntity player = (PlayerEntity)(Object)this;
 
+        //? if >=1.18 {
         if(player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) return;
+        //?} else {
+        /*if(player.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) return;
+        *///?}
 
         player.getInventory().main.forEach(stack -> grimoire$dropAndDecrement(stack, player));
         player.getInventory().offHand.forEach(stack -> grimoire$dropAndDecrement(stack, player));
@@ -37,7 +41,11 @@ public abstract class PlayerEntityMixin {
 
     @Unique
     private void grimoire$dropAndDecrement(ItemStack stack, PlayerEntity player) {
+        //? if >=1.18 {
         if(player.getWorld().isClient) return;
+        //?} else {
+        /*if(player.world.isClient) return;
+        *///?}
 
         //? if >=1.18.2 {
         if(!(stack.getItem().getRegistryEntry().isIn(ModTags.ItemTags.SOULBOUND_ITEMS))) {
@@ -50,7 +58,11 @@ public abstract class PlayerEntityMixin {
         }
         //?} else {
         /*if(!(ModTags.ItemTags.SOULBOUND_ITEMS.contains(stack.getItem()))) {
+            //? if >=1.18 {
             if(!player.getWorld().getGameRules().getBoolean(ModGamerules.SPAWN_PLAYER_GRAVES) && !EnchantmentHelper.hasVanishingCurse(stack)) player.dropStack(stack.copy());
+            //?} else {
+            /^if(!player.world.getGameRules().getBoolean(ModGamerules.SPAWN_PLAYER_GRAVES) && !EnchantmentHelper.hasVanishingCurse(stack)) player.dropStack(stack.copy());
+            ^///?}
             stack.setCount(0);
         }
         *///?}
@@ -61,7 +73,11 @@ abstract class ServerPlayerEntityMixin {
     @Inject(method = "copyFrom", at = @At(value = "TAIL"))
     private void grimoire$copyFrom(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
         ServerPlayerEntity player = (ServerPlayerEntity)(Object)this;
+        //? >=1.18 {
         if(player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) return;
+        //?} else {
+        /*if(player.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) return;
+        *///?}
         player.getInventory().clone(oldPlayer.getInventory());
     }
 }

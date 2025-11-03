@@ -11,9 +11,10 @@ import net.minecraft.registry.tag.TagKey;
 //?} else if >=1.17.1 {
 /*import net.minecraft.tag.Tag;
 import net.fabricmc.fabric.api.tag.TagFactory;
-*///?} else if >=1.17 {
-//import net.minecraft.tag.Tag;
-//?}
+*///?} else {
+/*import net.minecraft.tag.Tag;
+import net.fabricmc.fabric.api.tag.TagRegistry;
+*///?}
 
 public class ModTags {
     public static class ItemTags {
@@ -23,9 +24,9 @@ public class ModTags {
         //public static TagKey<Item> SOULBOUND_ITEMS = TagKey.of(Registry.ITEM_KEY, NicosGraves.id("soulbound"));
         //?} else if >=1.17.1 {
         /*public static Tag<Item> SOULBOUND_ITEMS = TagFactory.ITEM.create(NicosGraves.id("soulbound"));
-        *///?} else if >=1.17 {
-        //public static Tag<Item> SOULBOUND_ITEMS = TagRegistry.item(NicosGraves.id("soulbound"));
-        //?}
+        *///?} else {
+        /*public static Tag<Item> SOULBOUND_ITEMS = TagRegistry.item(NicosGraves.id("soulbound"));
+        *///?}
 
         public static void register() {
 
