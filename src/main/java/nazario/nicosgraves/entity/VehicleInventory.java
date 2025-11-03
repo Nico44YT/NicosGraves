@@ -192,8 +192,8 @@ public interface VehicleInventory extends Inventory, NamedScreenHandlerFactory {
 		return !this.isRemoved() && this.getPos().isInRange(player.getPos(), 8.0);
 	}
 }
-*///?} else if >1.17 {
-import net.minecraft.container.NameableContainerFactory;
+*///?} else if <1.17 {
+/*import net.minecraft.container.NameableContainerFactory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -331,4 +331,4 @@ public interface VehicleInventory extends Inventory, NameableContainerFactory {
 		return !this.isRemoved() && this.getPos().distanceTo(player.getPos()) <= 8.0;
 	}
 }
-//?}
+*///?}
