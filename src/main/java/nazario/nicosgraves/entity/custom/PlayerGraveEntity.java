@@ -21,10 +21,8 @@ import net.minecraft.nbt.NbtHelper;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Arm;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
+import net.minecraft.text.Text;
+import net.minecraft.util.*;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -106,8 +104,19 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     }
 
     @Override
+    public void kill() {
+        this.dropInventory();
+        this.discard();
+    }
+
+    @Override
     public boolean damage(DamageSource source, float amount) {
         if(source.getAttacker() instanceof PlayerEntity player) {
+            if(getWorld().getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && !this.getOwnerUUID().equals(player.getUuid())) {
+                player.sendMessage(Text.translatable("message.nicos_graves.not_owner").formatted(Formatting.RED), true);
+                return false;
+            }
+
             if(player.isSneaking()) {
                 if(getWorld().isClient) return true;
 
@@ -132,7 +141,10 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
             return ActionResult.PASS;
         }
 
-        if (getEntityWorld().getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && this.owner != null && !player.getUuid().equals(this.owner)) return ActionResult.PASS;
+        if (getEntityWorld().getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && this.owner != null && !player.getUuid().equals(this.owner)) {
+            player.sendMessage(Text.translatable("message.nicos_graves.not_owner").formatted(Formatting.RED), true);
+            return ActionResult.PASS;
+        }
 
         this.open(player);
         return ActionResult.SUCCESS; // Prevents further interaction processing

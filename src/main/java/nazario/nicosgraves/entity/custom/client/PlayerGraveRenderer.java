@@ -10,8 +10,6 @@ import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 
@@ -26,14 +24,6 @@ public class PlayerGraveRenderer extends LivingEntityRenderer<PlayerGraveEntity,
         ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
 
         ItemStack stack = new ItemStack(Items.SKELETON_SKULL);
-
-        if(entity.getGameProfile() != null) {
-            NbtCompound skullOwnerNbt = new NbtCompound();
-            NbtHelper.writeGameProfile(skullOwnerNbt, entity.getGameProfile());
-
-            stack = new ItemStack(Items.PLAYER_HEAD);
-            stack.getOrCreateNbt().put("SkullOwner", skullOwnerNbt);
-        }
 
         matrixStack.push();
 
