@@ -1,4 +1,4 @@
-package nazario.nicosgraves.util;
+package nazario.nicosgraves.util.compat;
 
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketsApi;
