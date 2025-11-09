@@ -2,6 +2,7 @@ package nazario.nicosgraves.entity.custom;
 
 import com.mojang.authlib.GameProfile;
 import nazario.nicosgraves.api.SoulboundItem;
+import nazario.nicosgraves.util.ModGamerules;
 import nazario.nicosgraves.util.ModTags;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
@@ -36,7 +37,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
 
     private static final int MAX_SIZE = 27*2; // Maximum inventory size
     private DefaultedList<ItemStack> inventory;
-    private GameProfile playerGameProfile;
+    private UUID owner;
 
     public PlayerGraveEntity(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
@@ -56,7 +57,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         super.readCustomDataFromNbt(nbt);
 
         Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory());
-        this.playerGameProfile = NbtHelper.toGameProfile(nbt.getCompound("player_profile"));
+        this.owner = nbt.getUuid("owner");
     }
 
     @Override
@@ -66,22 +67,16 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         NbtCompound inventoryNbt = new NbtCompound();
         Inventories.writeNbt(inventoryNbt, this.getInventory());
 
-        NbtCompound gameProfileNbt = new NbtCompound();
-        NbtHelper.writeGameProfile(gameProfileNbt, this.getGameProfile());
-
         nbt.put("inventory", inventoryNbt);
-        nbt.put("player_profile", gameProfileNbt);
+        nbt.putUuid("owner", this.owner);
     }
 
-    public void setGameProfile(PlayerEntity player) {
-        UUID playerUuid = player.getUuid();
-        String playerName = player.getName().getString();
-
-        this.playerGameProfile = new GameProfile(playerUuid, playerName);
+    public void setOwner(PlayerEntity player) {
+        this.owner = player.getUuid();
     }
 
-    public GameProfile getGameProfile() {
-        return this.playerGameProfile;
+    public UUID getOwnerUUID() {
+        return this.owner;
     }
 
     private void applyWaterBuoyancy() {
@@ -136,6 +131,8 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         if (player.getWorld().isClient) {
             return ActionResult.PASS;
         }
+
+        if (getEntityWorld().getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && this.owner != null && !player.getUuid().equals(this.owner)) return ActionResult.PASS;
 
         this.open(player);
         return ActionResult.SUCCESS; // Prevents further interaction processing

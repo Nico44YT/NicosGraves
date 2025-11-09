@@ -27,7 +27,7 @@ public abstract class LivingEntityMixin {
 
                 PlayerGraveEntity playerGrave = new PlayerGraveEntity(ModEntities.PLAYER_GRAVE, victimPlayer.getWorld());
                 playerGrave.setPosition(victimPlayer.getPos());
-                playerGrave.setGameProfile(victimPlayer);
+                playerGrave.setOwner(victimPlayer);
                 playerGrave.resetInventory();
 
                 victimPlayer.getInventory().main.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
