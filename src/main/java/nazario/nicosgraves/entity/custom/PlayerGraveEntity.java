@@ -1,6 +1,5 @@
 package nazario.nicosgraves.entity.custom;
 
-import com.mojang.authlib.GameProfile;
 import nazario.nicosgraves.api.SoulboundItem;
 import nazario.nicosgraves.util.ModGamerules;
 import nazario.nicosgraves.util.ModTags;
@@ -16,8 +15,9 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.vehicle.VehicleInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.*;
+import net.minecraft.loot.LootTable;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
@@ -33,7 +33,7 @@ import java.util.UUID;
 
 public class PlayerGraveEntity extends LivingEntity implements VehicleInventory {
 
-    private static final int MAX_SIZE = 27*2; // Maximum inventory size
+    private static final int MAX_SIZE = 27 * 2; // Maximum inventory size
     private DefaultedList<ItemStack> inventory;
     private UUID owner;
 
@@ -54,7 +54,11 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
 
-        Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory());
+        //? >=1.20.5 {
+        Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory(), this.getWorld().getRegistryManager());
+        //?} else {
+        /*Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory());
+         *///?}
         this.owner = nbt.getUuid("owner");
     }
 
@@ -63,7 +67,11 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         super.writeCustomDataToNbt(nbt);
 
         NbtCompound inventoryNbt = new NbtCompound();
-        Inventories.writeNbt(inventoryNbt, this.getInventory());
+        //? >=1.20.5 {
+        Inventories.writeNbt(inventoryNbt, this.getInventory(), this.getRegistryManager());
+        //?} else {
+        /*Inventories.writeNbt(inventoryNbt, this.getInventory());
+         *///?}
 
         nbt.put("inventory", inventoryNbt);
         nbt.putUuid("owner", this.owner);
@@ -92,11 +100,11 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         super.tick();
 
         float f = this.getStandingEyeHeight();
-        if (this.isTouchingWater() && this.getFluidHeight(FluidTags.WATER) > (double)f) {
+        if (this.isTouchingWater() && this.getFluidHeight(FluidTags.WATER) > (double) f) {
             this.applyWaterBuoyancy();
             this.velocityDirty = true;
             this.velocityModified = true;
-        } else if (this.isInLava() && this.getFluidHeight(FluidTags.LAVA) > (double)f) {
+        } else if (this.isInLava() && this.getFluidHeight(FluidTags.LAVA) > (double) f) {
             this.applyLavaBuoyancy();
             this.velocityDirty = true;
             this.velocityModified = true;
@@ -111,14 +119,14 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
 
     @Override
     public boolean damage(DamageSource source, float amount) {
-        if(source.getAttacker() instanceof PlayerEntity player) {
-            if(getWorld().getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && !this.getOwnerUUID().equals(player.getUuid())) {
+        if (source.getAttacker() instanceof PlayerEntity player) {
+            if (getWorld().getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && !this.getOwnerUUID().equals(player.getUuid())) {
                 player.sendMessage(Text.translatable("message.nicos_graves.not_owner").formatted(Formatting.RED), true);
                 return false;
             }
 
-            if(player.isSneaking()) {
-                if(getWorld().isClient) return true;
+            if (player.isSneaking()) {
+                if (getWorld().isClient) return true;
 
                 this.dropInventory();
                 this.discard();
@@ -130,7 +138,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
 
     @Override
     public ActionResult interact(PlayerEntity player, Hand hand) {
-        if(player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof BowItem ||
+        if (player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof BowItem ||
                 player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof ShieldItem ||
                 player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof TridentItem ||
                 player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof FishingRodItem ||
@@ -152,7 +160,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
 
     @Override
     protected void dropInventory() {
-        for(int i = 0;i<inventory.size();i++) {
+        for (int i = 0; i < inventory.size(); i++) {
             ItemEntity itemEntity = new ItemEntity(EntityType.ITEM, getWorld());
 
             itemEntity.setStack(inventory.get(i));
@@ -164,16 +172,17 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     }
 
     public void addInventoryStackCheckSoulbound(ItemStack stack, PlayerEntity victimPlayer) {
-        if(stack.getItem().getRegistryEntry().isIn(ModTags.ItemTags.SOULBOUND_ITEMS) || (stack.getItem() instanceof SoulboundItem soulboundItem && soulboundItem.isRetained(stack, victimPlayer, victimPlayer.getWorld()))) return;
+        if (stack.getItem().getRegistryEntry().isIn(ModTags.ItemTags.SOULBOUND_ITEMS) || (stack.getItem() instanceof SoulboundItem soulboundItem && soulboundItem.isRetained(stack, victimPlayer, victimPlayer.getWorld())))
+            return;
         this.addInventoryStack(stack);
     }
 
     public void addInventoryStack(ItemStack stack) {
-        if(stack == null) return;
-        if(stack.isEmpty()) return;
-        if(stack.getItem().equals(Items.AIR)) return;
-        for(int i = 0;i<MAX_SIZE;i++) {
-            if(inventory.get(i).getItem().equals(Items.AIR)) {
+        if (stack == null) return;
+        if (stack.isEmpty()) return;
+        if (stack.getItem().equals(Items.AIR)) return;
+        for (int i = 0; i < MAX_SIZE; i++) {
+            if (inventory.get(i).getItem().equals(Items.AIR)) {
                 setInventoryStack(i, stack);
                 break;
             }
@@ -280,7 +289,14 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         return false;
     }
 
-    //region// No clue //
+
+    //? <1.20.5 {
+
+    /*@Override
+    public Identifier getLootTable() {
+        return super.getLootTable();
+    }
+
     @Override
     public @Nullable Identifier getLootTableId() {
         return null;
@@ -292,8 +308,29 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     }
 
     @Override
+    public long getLootTableSeed() {
+        return super.getLootTableSeed();
+    }
+
+    @Override
     public void setLootTableSeed(long lootTableSeed) {
 
     }
-    //endregion
+
+    *///?} else {
+    @Override
+    public void setLootTable(@Nullable RegistryKey<LootTable> lootTable) {
+
+    }
+
+    @Override
+    public void setLootTableSeed(long lootTableSeed) {
+
+    }
+
+    //If you think this is not important think twice and run your game with a build jar without it, it will just crash and burn when you die.
+    public RegistryKey<LootTable> method_42276() {
+        return null;
+    }
+    //?}
 }

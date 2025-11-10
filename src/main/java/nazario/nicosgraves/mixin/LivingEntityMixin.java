@@ -4,13 +4,15 @@ import nazario.nicosgraves.entity.ModEntities;
 import nazario.nicosgraves.entity.custom.PlayerGraveEntity;
 import nazario.nicosgraves.util.ModGamerules;
 import nazario.nicosgraves.util.compat.TrinketsHelper;
-import nazario.nicosgraves.util.compat.YYZsBackpackHelper;
+//? <1.20.5 {
+/*import nazario.nicosgraves.util.compat.YYZsBackpackHelper;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
+*///?}
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -33,12 +35,14 @@ public abstract class LivingEntityMixin {
                 playerGrave.setOwner(victimPlayer);
                 playerGrave.resetInventory();
 
-                if (FabricLoader.getInstance().isModLoaded("yyzsbackpack") && YYZsBackpackHelper.needCompatibility() && victimPlayer instanceof ServerPlayerEntity serverPlayer) {
+                //? <1.20.5 {
+                /*if (FabricLoader.getInstance().isModLoaded("yyzsbackpack") && YYZsBackpackHelper.needCompatibility() && victimPlayer instanceof ServerPlayerEntity serverPlayer) {
                     try {
                         ItemStack backpackStack = YYZsBackpackHelper.save(serverPlayer);
                         playerGrave.addInventoryStackCheckSoulbound(backpackStack.copy(), victimPlayer);
                     } catch (Exception ignored) {}
                 }
+                *///?}
 
                 if (FabricLoader.getInstance().isModLoaded("trinkets")) {
                     try {
