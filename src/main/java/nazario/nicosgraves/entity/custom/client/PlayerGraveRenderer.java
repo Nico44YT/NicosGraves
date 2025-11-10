@@ -40,10 +40,10 @@ public class PlayerGraveRenderer extends LivingEntityRenderer<PlayerGraveEntity,
 
         if(entity.getCustomName() != null) {
             //? >=1.20.5 {
-            this.renderLabelIfPresent(entity, entity.getCustomName(), matrixStack, vertexConsumers, light, tickDelta);
-            //?} else {
-            /*this.renderLabelIfPresent(entity, entity.getCustomName(), matrixStack, vertexConsumers, light);
-            *///?}
+            /*this.renderLabelIfPresent(entity, entity.getCustomName(), matrixStack, vertexConsumers, light, tickDelta);
+            *///?} else {
+            this.renderLabelIfPresent(entity, entity.getCustomName(), matrixStack, vertexConsumers, light);
+            //?}
         }
     }
     @Override

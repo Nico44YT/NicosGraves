@@ -4,8 +4,8 @@ import nazario.nicosgraves.util.ModGamerules;
 import nazario.nicosgraves.util.ModTags;
 import nazario.nicosgraves.util.compat.TrinketsHelper;
 //? <1.20.5 {
-/*import nazario.nicosgraves.util.compat.YYZsBackpackHelper;
-*///?}
+import nazario.nicosgraves.util.compat.YYZsBackpackHelper;
+//?}
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerEntity;
@@ -27,13 +27,13 @@ public abstract class PlayerEntityMixin {
         if(player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) return;
 
         //? <1.20.5 {
-        /*if (FabricLoader.getInstance().isModLoaded("yyzsbackpack") && YYZsBackpackHelper.needCompatibility() && player instanceof ServerPlayerEntity serverPlayer) {
+        if (FabricLoader.getInstance().isModLoaded("yyzsbackpack") && YYZsBackpackHelper.needCompatibility() && player instanceof ServerPlayerEntity serverPlayer) {
             try {
                 ItemStack backpackStack = YYZsBackpackHelper.save(serverPlayer);
                 grimoire$dropAndDecrement(backpackStack, player);
             } catch (Exception ignored) {}
         }
-        *///?}
+        //?}
 
         if (FabricLoader.getInstance().isModLoaded("trinkets")) {
             try {

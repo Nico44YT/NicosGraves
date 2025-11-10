@@ -5,10 +5,10 @@ import nazario.nicosgraves.entity.custom.PlayerGraveEntity;
 import nazario.nicosgraves.util.ModGamerules;
 import nazario.nicosgraves.util.compat.TrinketsHelper;
 //? <1.20.5 {
-/*import nazario.nicosgraves.util.compat.YYZsBackpackHelper;
+import nazario.nicosgraves.util.compat.YYZsBackpackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
-*///?}
+//?}
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
@@ -36,13 +36,13 @@ public abstract class LivingEntityMixin {
                 playerGrave.resetInventory();
 
                 //? <1.20.5 {
-                /*if (FabricLoader.getInstance().isModLoaded("yyzsbackpack") && YYZsBackpackHelper.needCompatibility() && victimPlayer instanceof ServerPlayerEntity serverPlayer) {
+                if (FabricLoader.getInstance().isModLoaded("yyzsbackpack") && YYZsBackpackHelper.needCompatibility() && victimPlayer instanceof ServerPlayerEntity serverPlayer) {
                     try {
                         ItemStack backpackStack = YYZsBackpackHelper.save(serverPlayer);
                         playerGrave.addInventoryStackCheckSoulbound(backpackStack.copy(), victimPlayer);
                     } catch (Exception ignored) {}
                 }
-                *///?}
+                //?}
 
                 if (FabricLoader.getInstance().isModLoaded("trinkets")) {
                     try {

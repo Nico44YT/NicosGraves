@@ -55,10 +55,10 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         super.readCustomDataFromNbt(nbt);
 
         //? >=1.20.5 {
-        Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory(), this.getWorld().getRegistryManager());
-        //?} else {
-        /*Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory());
-         *///?}
+        /*Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory(), this.getWorld().getRegistryManager());
+        *///?} else {
+        Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory());
+         //?}
         this.owner = nbt.getUuid("owner");
     }
 
@@ -68,10 +68,10 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
 
         NbtCompound inventoryNbt = new NbtCompound();
         //? >=1.20.5 {
-        Inventories.writeNbt(inventoryNbt, this.getInventory(), this.getRegistryManager());
-        //?} else {
-        /*Inventories.writeNbt(inventoryNbt, this.getInventory());
-         *///?}
+        /*Inventories.writeNbt(inventoryNbt, this.getInventory(), this.getRegistryManager());
+        *///?} else {
+        Inventories.writeNbt(inventoryNbt, this.getInventory());
+         //?}
 
         nbt.put("inventory", inventoryNbt);
         nbt.putUuid("owner", this.owner);
@@ -291,12 +291,6 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
 
 
     //? <1.20.5 {
-
-    /*@Override
-    public Identifier getLootTable() {
-        return super.getLootTable();
-    }
-
     @Override
     public @Nullable Identifier getLootTableId() {
         return null;
@@ -308,17 +302,12 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     }
 
     @Override
-    public long getLootTableSeed() {
-        return super.getLootTableSeed();
-    }
-
-    @Override
     public void setLootTableSeed(long lootTableSeed) {
 
     }
 
-    *///?} else {
-    @Override
+    //?} else {
+    /*@Override
     public void setLootTable(@Nullable RegistryKey<LootTable> lootTable) {
 
     }
@@ -332,5 +321,5 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     public RegistryKey<LootTable> method_42276() {
         return null;
     }
-    //?}
+    *///?}
 }
