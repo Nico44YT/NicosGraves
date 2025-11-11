@@ -2,7 +2,8 @@ package nazario.nicosgraves.mixin;
 
 import nazario.nicosgraves.util.ModGamerules;
 import nazario.nicosgraves.util.ModTags;
-import nazario.nicosgraves.util.TrinketsHelper;
+import nazario.nicosgraves.util.comp.TrinketsHelper;
+import nazario.nicosgraves.util.comp.YYZsBackpackHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerEntity;
@@ -23,15 +24,22 @@ public abstract class PlayerEntityMixin {
 
         if(player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) return;
 
-        player.getInventory().main.forEach(stack -> grimoire$dropAndDecrement(stack, player));
-        player.getInventory().offHand.forEach(stack -> grimoire$dropAndDecrement(stack, player));
-        player.getInventory().armor.forEach(stack -> grimoire$dropAndDecrement(stack, player));
+        if (FabricLoader.getInstance().isModLoaded("yyzsbackpack") && player instanceof ServerPlayerEntity serverPlayer) {
+            try {
+                ItemStack backpackStack = YYZsBackpackHelper.save(serverPlayer);
+                grimoire$dropAndDecrement(backpackStack, player);
+            } catch (Exception ignored) {}
+        }
 
         if (FabricLoader.getInstance().isModLoaded("trinkets")) {
             try {
                 TrinketsHelper.findAllEquippedBy(player).forEach(stack -> grimoire$dropAndDecrement(stack, player));
             } catch (Exception ignored) {}
         }
+
+        player.getInventory().main.forEach(stack -> grimoire$dropAndDecrement(stack, player));
+        player.getInventory().offHand.forEach(stack -> grimoire$dropAndDecrement(stack, player));
+        player.getInventory().armor.forEach(stack -> grimoire$dropAndDecrement(stack, player));
 
         ci.cancel();
     }

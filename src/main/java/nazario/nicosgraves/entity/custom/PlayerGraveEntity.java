@@ -1,7 +1,7 @@
 package nazario.nicosgraves.entity.custom;
 
-import com.mojang.authlib.GameProfile;
 import nazario.nicosgraves.api.SoulboundItem;
+import nazario.nicosgraves.util.ModGamerules;
 import nazario.nicosgraves.util.ModTags;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
@@ -16,18 +16,20 @@ import net.minecraft.entity.vehicle.VehicleInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.tag.FluidTags;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Arm;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
+import net.minecraft.text.Text;
+import net.minecraft.util.*;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+
+//? >=1.19.3 {
+/*import net.minecraft.registry.tag.FluidTags;
+*///?} else {
+import net.minecraft.tag.FluidTags;
+//?}
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -36,7 +38,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
 
     private static final int MAX_SIZE = 27*2; // Maximum inventory size
     private DefaultedList<ItemStack> inventory;
-    private GameProfile playerGameProfile;
+    private UUID owner;
 
     public PlayerGraveEntity(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
@@ -56,7 +58,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         super.readCustomDataFromNbt(nbt);
 
         Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory());
-        //this.playerGameProfile = NbtHelper.toGameProfile(nbt.getCompound("player_profile"));
+        this.owner = nbt.getUuid("owner");
     }
 
     @Override
@@ -66,22 +68,16 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         NbtCompound inventoryNbt = new NbtCompound();
         Inventories.writeNbt(inventoryNbt, this.getInventory());
 
-        //NbtCompound gameProfileNbt = new NbtCompound();
-        //NbtHelper.writeGameProfile(gameProfileNbt, this.getGameProfile());
-
         nbt.put("inventory", inventoryNbt);
-        //nbt.put("player_profile", gameProfileNbt);
+        nbt.putUuid("owner", this.owner);
     }
 
-    public void setGameProfile(PlayerEntity player) {
-        UUID playerUuid = player.getUuid();
-        String playerName = player.getName().getString();
-
-        this.playerGameProfile = new GameProfile(playerUuid, playerName);
+    public void setOwner(PlayerEntity player) {
+        this.owner = player.getUuid();
     }
 
-    public GameProfile getGameProfile() {
-        return this.playerGameProfile;
+    public UUID getOwnerUUID() {
+        return this.owner;
     }
 
     private void applyWaterBuoyancy() {
@@ -110,9 +106,20 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         }
     }
 
+
+    public void kill() {
+        this.dropInventory();
+        this.discard();
+    }
+
     @Override
     public boolean damage(DamageSource source, float amount) {
         if(source.getAttacker() instanceof PlayerEntity player) {
+            if(getWorld().getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && !this.getOwnerUUID().equals(player.getUuid())) {
+                player.sendMessage(Text.translatable("message.nicos_graves.not_owner").formatted(Formatting.RED), true);
+                return false;
+            }
+
             if(player.isSneaking()) {
                 if(getWorld().isClient) return true;
 
@@ -137,7 +144,16 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
             return ActionResult.PASS;
         }
 
+        if (getEntityWorld().getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && this.owner != null && !player.getUuid().equals(this.owner)) {
+            player.sendMessage(Text.translatable("message.nicos_graves.not_owner").formatted(Formatting.RED), true);
+            return ActionResult.PASS;
+        }
+
+        //? >=1.19.4 {
+        /*this.open(player);
+        *///?} else {
         this.open(this::emitGameEvent, player);
+        //?}
         return ActionResult.SUCCESS; // Prevents further interaction processing
     }
 
