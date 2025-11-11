@@ -27,14 +27,6 @@ public class PlayerGraveRenderer extends LivingEntityRenderer<PlayerGraveEntity,
 
         ItemStack stack = new ItemStack(Items.SKELETON_SKULL);
 
-        if(entity.getGameProfile() != null) {
-            NbtCompound skullOwnerNbt = new NbtCompound();
-            //NbtHelper.writeGameProfile(skullOwnerNbt, entity.getGameProfile());
-
-            stack = new ItemStack(Items.PLAYER_HEAD);
-            //stack.getOrCreateNbt().put("SkullOwner", skullOwnerNbt);
-        }
-
         matrixStack.push();
 
         matrixStack.scale(1.5f, 1.5f, 1.5f);

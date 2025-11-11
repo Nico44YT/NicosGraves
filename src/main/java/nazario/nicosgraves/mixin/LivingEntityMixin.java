@@ -3,11 +3,14 @@ package nazario.nicosgraves.mixin;
 import nazario.nicosgraves.entity.ModEntities;
 import nazario.nicosgraves.entity.custom.PlayerGraveEntity;
 import nazario.nicosgraves.util.ModGamerules;
-import nazario.nicosgraves.util.TrinketsHelper;
+import nazario.nicosgraves.util.compat.TrinketsHelper;
+import nazario.nicosgraves.util.compat.YYZsBackpackHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,12 +30,15 @@ public abstract class LivingEntityMixin {
 
                 PlayerGraveEntity playerGrave = new PlayerGraveEntity(ModEntities.PLAYER_GRAVE, victimPlayer.getWorld());
                 playerGrave.setPosition(victimPlayer.getPos());
-                playerGrave.setGameProfile(victimPlayer);
+                playerGrave.setOwner(victimPlayer);
                 playerGrave.resetInventory();
 
-                victimPlayer.getInventory().main.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
-                victimPlayer.getInventory().offHand.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
-                victimPlayer.getInventory().armor.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
+                if (FabricLoader.getInstance().isModLoaded("yyzsbackpack") && YYZsBackpackHelper.needCompatibility() && victimPlayer instanceof ServerPlayerEntity serverPlayer) {
+                    try {
+                        ItemStack backpackStack = YYZsBackpackHelper.save(serverPlayer);
+                        playerGrave.addInventoryStackCheckSoulbound(backpackStack.copy(), victimPlayer);
+                    } catch (Exception ignored) {}
+                }
 
                 if (FabricLoader.getInstance().isModLoaded("trinkets")) {
                     try {
@@ -41,6 +47,10 @@ public abstract class LivingEntityMixin {
                     } catch (Exception ignored) {
                     }
                 }
+
+                victimPlayer.getInventory().main.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
+                victimPlayer.getInventory().offHand.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
+                victimPlayer.getInventory().armor.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
 
                 playerGrave.setCustomName(victimPlayer.getDisplayName());
                 playerGrave.setCustomNameVisible(true);
