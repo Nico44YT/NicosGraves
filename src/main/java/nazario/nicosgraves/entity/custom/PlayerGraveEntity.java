@@ -1,5 +1,6 @@
 package nazario.nicosgraves.entity.custom;
 
+import nazario.nicosgraves.NicosGraves;
 import nazario.nicosgraves.api.SoulboundItem;
 import nazario.nicosgraves.util.ModGamerules;
 import nazario.nicosgraves.util.ModTags;
@@ -24,10 +25,7 @@ import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Arm;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
+import net.minecraft.util.*;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -35,12 +33,13 @@ import org.jetbrains.annotations.Nullable;
 
 //? >=1.21.2 {
 //?} else {
-/*import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
-*///?}
+//?}
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class PlayerGraveEntity extends LivingEntity implements VehicleInventory {
 
@@ -56,18 +55,18 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
 
     public static FabricEntityType.Builder.Living<PlayerGraveEntity> createAttributes(FabricEntityType.Builder.Living<PlayerGraveEntity> builder) {
         //? <1.21.2 {
-        /*return builder.defaultAttributes(() -> LivingEntity.createLivingAttributes()
+        return builder.defaultAttributes(() -> LivingEntity.createLivingAttributes()
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0f)
                 .add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 100f)
                 .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 0f)
         );
-        *///?} else {
-        return builder.defaultAttributes(() -> LivingEntity.createLivingAttributes()
+        //?} else {
+        /*return builder.defaultAttributes(() -> LivingEntity.createLivingAttributes()
                 .add(EntityAttributes.MOVEMENT_SPEED, 0)
                 .add(EntityAttributes.KNOCKBACK_RESISTANCE, 100)
                 .add(EntityAttributes.FOLLOW_RANGE, 0)
         );
-        //?}
+        *///?}
     }
 
 
@@ -75,8 +74,13 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
 
+        //? >=1.21.5 {
+        /*nbt.getCompound("inventory").ifPresentOrElse(presentNbt -> Inventories.readNbt(presentNbt, this.getInventory(), getWorld().getRegistryManager()), () -> NicosGraves.LOGGER.warn("No inventory found in grave."));
+        nbt.get("owner", Uuids.CODEC).ifPresentOrElse(this::setOwnerUUID, () -> NicosGraves.LOGGER.warn("Owner UUID not found in grave."));
+        *///?} else {
         Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory(), getWorld().getRegistryManager());
         this.owner = nbt.getUuid("owner");
+        //?}
     }
 
     @Override
@@ -87,7 +91,15 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         Inventories.writeNbt(inventoryNbt, this.getInventory(), getWorld().getRegistryManager());
 
         nbt.put("inventory", inventoryNbt);
+        //? >=1.21.5 {
+        /*nbt.put("owner", Uuids.CODEC, this.owner);
+        *///?} else {
         nbt.putUuid("owner", this.owner);
+        //?}
+    }
+
+    private void setOwnerUUID(UUID uuid) {
+        this.owner = uuid;
     }
 
     public void setOwner(PlayerEntity player) {
@@ -125,11 +137,11 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     }
 
     //? >=1.21.2 {
-    @Override
+    /*@Override
     public void kill(ServerWorld world) {
         this.kill();
     }
-    //?}
+    *///?}
 
 
     public void kill() {
@@ -138,11 +150,11 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     }
 
     //? >=1.21.2 {
-    @Override
+    /*@Override
     public boolean damage(ServerWorld world, DamageSource source, float amount) {
         return this.damage(source, amount);
     }
-    //?}
+    *///?}
 
 
     public boolean damage(DamageSource source, float amount) {
@@ -182,11 +194,11 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
 
 
     //? >=1.21.2 {
-    @Override
+    /*@Override
     protected void dropInventory(ServerWorld world) {
         this.dropInventory();
     }
-    //?}
+    *///?}
 
     protected void dropInventory() {
         for(int i = 0;i<inventory.size();i++) {
@@ -285,7 +297,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         inventory.clear();
     }
 
-    @Override
+    //@Override
     public Iterable<ItemStack> getArmorItems() {
         Iterable<ItemStack> stacks = new ArrayList<ItemStack>();
         stacks.forEach(stack -> new ItemStack(Items.AIR));
@@ -329,17 +341,17 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     }
 
     //? <1.21.2 {
-    /*//If you think this is not important think twice and run your game with a build jar without it, it will just crash and burn when you die.
+    //If you think this is not important think twice and run your game with a build jar without it, it will just crash and burn when you die.
     public RegistryKey<LootTable> method_42276() {
         return null;
     }
 
-    *///?} else {
-    @Override
+    //?} else {
+    /*@Override
     public @Nullable RegistryKey<LootTable> getLootTable() {
         return null;
     }
-    //?}
+    *///?}
 
     //endregion
 }

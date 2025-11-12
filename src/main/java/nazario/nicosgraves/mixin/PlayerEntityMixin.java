@@ -3,10 +3,10 @@ package nazario.nicosgraves.mixin;
 import nazario.nicosgraves.util.ModGamerules;
 import nazario.nicosgraves.util.ModTags;
 //? <1.21.2 {
-/*import nazario.nicosgraves.util.compat.TrinketsHelper;
+import nazario.nicosgraves.util.compat.TrinketsHelper;
 import nazario.nicosgraves.util.compat.YYZsBackpackHelper;
 import net.fabricmc.loader.api.FabricLoader;
-*///?}
+//?}
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.player.PlayerEntity;
@@ -29,7 +29,7 @@ public abstract class PlayerEntityMixin {
         if(player.getWorld() instanceof ServerWorld serverWorld && serverWorld.getGameRules().getBoolean(GameRules.KEEP_INVENTORY)) return;
 
         //? <1.21.2 {
-        /*if (FabricLoader.getInstance().isModLoaded("yyzsbackpack") && YYZsBackpackHelper.needCompatibility() && player instanceof ServerPlayerEntity serverPlayer) {
+        if (FabricLoader.getInstance().isModLoaded("yyzsbackpack") && YYZsBackpackHelper.needCompatibility() && player instanceof ServerPlayerEntity serverPlayer) {
             try {
                 ItemStack backpackStack = YYZsBackpackHelper.save(serverPlayer);
                 grimoire$dropAndDecrement(backpackStack, player);
@@ -41,17 +41,22 @@ public abstract class PlayerEntityMixin {
                 TrinketsHelper.findAllEquippedBy(player).forEach(stack -> grimoire$dropAndDecrement(stack, player));
             } catch (Exception ignored) {}
         }
-        *///?}
+        //?}
 
+        //? >=1.21.5 {
+        /*player.getInventory().main.forEach(stack -> grimoire$dropAndDecrement(stack, player));
+        player.getInventory().equipment.map.forEach((slot, stack) -> grimoire$dropAndDecrement(stack, player));
+        *///?} else {
         player.getInventory().main.forEach(stack -> grimoire$dropAndDecrement(stack, player));
         player.getInventory().offHand.forEach(stack -> grimoire$dropAndDecrement(stack, player));
         player.getInventory().armor.forEach(stack -> grimoire$dropAndDecrement(stack, player));
+        //?}
 
         ci.cancel();
     }
 
     //? >=1.21.1 {
-    @Unique
+    /*@Unique
     private void grimoire$dropAndDecrement(ItemStack stack, PlayerEntity player) {
         if(player.getWorld().isClient) return;
 
@@ -60,8 +65,8 @@ public abstract class PlayerEntityMixin {
             stack.setCount(0);
         }
     }
-    //?} else {
-    /*@Unique
+    *///?} else {
+    @Unique
     private void grimoire$dropAndDecrement(ItemStack stack, PlayerEntity player) {
         if(player.getWorld().isClient) return;
 
@@ -70,7 +75,7 @@ public abstract class PlayerEntityMixin {
             stack.setCount(0);
         }
     }
-    *///?}
+    //?}
 }
 @Mixin(ServerPlayerEntity.class)
 abstract class ServerPlayerEntityMixin {

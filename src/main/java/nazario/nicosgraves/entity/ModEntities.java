@@ -21,10 +21,10 @@ public class ModEntities {
             .spawnableFarFromPlayer()
             .disableSummon()
             //? >=1.21.2 {
-            .build(key)
-            //?} else {
-            /*.build()
-            *///?}
+            /*.build(key)
+            *///?} else {
+            .build()
+            //?}
     );
 
     public static void register() {

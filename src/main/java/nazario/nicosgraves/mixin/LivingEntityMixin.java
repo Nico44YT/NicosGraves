@@ -4,14 +4,14 @@ import nazario.nicosgraves.entity.ModEntities;
 import nazario.nicosgraves.entity.custom.PlayerGraveEntity;
 import nazario.nicosgraves.util.ModGamerules;
 //? <1.21.2 {
-/*import nazario.nicosgraves.util.compat.TrinketsHelper;
+import nazario.nicosgraves.util.compat.TrinketsHelper;
 import nazario.nicosgraves.util.compat.YYZsBackpackHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
-*///?} else {
-import net.minecraft.server.world.ServerWorld;
-//?}
+//?} else {
+/*import net.minecraft.server.world.ServerWorld;
+*///?}
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value = LivingEntity.class, priority = 1500)
 public abstract class LivingEntityMixin {
     //? >=1.21.2 {
-    @Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;onDeath(Lnet/minecraft/entity/damage/DamageSource;)V"), cancellable = true)
+    /*@Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;onDeath(Lnet/minecraft/entity/damage/DamageSource;)V"), cancellable = true)
     private void grimoire$onDeathDamage(ServerWorld world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity thisEntity = (LivingEntity) (Object) this;
 
@@ -38,18 +38,22 @@ public abstract class LivingEntityMixin {
                 playerGrave.setOwner(victimPlayer);
                 playerGrave.resetInventory();
 
+                //? >=1.21.5 {
+                /^victimPlayer.getInventory().main.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
+                victimPlayer.getInventory().equipment.map.forEach((slot, stack) -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
+                ^///?} else {
                 victimPlayer.getInventory().main.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
                 victimPlayer.getInventory().offHand.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
                 victimPlayer.getInventory().armor.forEach(stack -> playerGrave.addInventoryStackCheckSoulbound(stack.copy(), victimPlayer));
-
+                //?}
                 playerGrave.setCustomName(victimPlayer.getDisplayName());
                 playerGrave.setCustomNameVisible(true);
                 victimPlayer.getWorld().spawnEntity(playerGrave);
             }
         }
     }
-    //?} else {
-    /*@Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;onDeath(Lnet/minecraft/entity/damage/DamageSource;)V"), cancellable = true)
+    *///?} else {
+    @Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;onDeath(Lnet/minecraft/entity/damage/DamageSource;)V"), cancellable = true)
     private void grimoire$onDeathDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity thisEntity = (LivingEntity) (Object) this;
 
@@ -88,5 +92,5 @@ public abstract class LivingEntityMixin {
             }
         }
     }
-    *///?}
+    //?}
 }
