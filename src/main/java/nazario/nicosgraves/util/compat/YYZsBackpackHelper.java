@@ -1,6 +1,7 @@
 package nazario.nicosgraves.util.compat;
 
-import com.yyz.yyzsbackpack.Backpack;
+//? <1.21.2 {
+/*import com.yyz.yyzsbackpack.Backpack;
 import com.yyz.yyzsbackpack.BackpackPlatform;
 import com.yyz.yyzsbackpack.item.BackpackItem;
 import com.yyz.yyzsbackpack.util.BackpackStorage;
@@ -31,3 +32,4 @@ public class YYZsBackpackHelper {
         return !Backpack.getConfig().use_dedicated_slot;
     }
 }
+*///?}

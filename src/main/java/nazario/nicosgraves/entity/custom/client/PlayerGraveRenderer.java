@@ -1,21 +1,96 @@
 package nazario.nicosgraves.entity.custom.client;
 
+//? >=1.21.2 {
 import nazario.nicosgraves.entity.custom.PlayerGraveEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
+import net.minecraft.client.render.entity.state.LivingEntityRenderState;
+import net.minecraft.client.render.item.ItemRenderer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.ModelTransformationMode;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.RotationAxis;
+//?} else {
+/*
+import nazario.nicosgraves.entity.custom.PlayerGraveEntity;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.client.render.entity.LivingEntityRenderer;
+import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
+ */
+//?}
 
-public class PlayerGraveRenderer extends LivingEntityRenderer<PlayerGraveEntity, PlayerGraveEntityModel<PlayerGraveEntity>> {
+
+//? >=1.21.2 {
+public class PlayerGraveRenderer extends LivingEntityRenderer<PlayerGraveEntity, LivingEntityRenderState, PlayerGraveEntityModel> {
+
+    private PlayerGraveEntity entity;
+    private float tickDelta;
+
+    public PlayerGraveRenderer(EntityRendererFactory.Context ctx) {
+        super(ctx, new PlayerGraveEntityModel(), 0.3f);
+    }
+
+    @Override
+    public Identifier getTexture(LivingEntityRenderState state) {
+        return Identifier.of("","");
+    }
+
+    @Override
+    public LivingEntityRenderState createRenderState() {
+        return new LivingEntityRenderState();
+    }
+
+    @Override
+    public void updateRenderState(PlayerGraveEntity entity, LivingEntityRenderState livingEntityRenderState, float tickDelta) {
+        super.updateRenderState(entity, livingEntityRenderState, tickDelta);
+
+        this.entity = entity;
+        this.tickDelta = tickDelta;// <- No clue if this is actually tick delta, and I have no idea how to get tick delta
+    }
+
+    @Override
+    public void render(LivingEntityRenderState livingEntityRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light) {
+        ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
+
+        ItemStack stack = new ItemStack(Items.SKELETON_SKULL);
+
+        matrixStack.push();
+
+        matrixStack.scale(1.5f, 1.5f, 1.5f);
+        matrixStack.translate(0, 0.25, 0);
+
+        matrixStack.translate(0, Math.sin((entity.age + tickDelta)*0.1f)*0.1f, 0);
+
+        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees((entity.age + tickDelta) * 2.5f));
+
+        //? >=1.21.4 {
+        itemRenderer.renderItem(stack, ModelTransformationMode.GROUND,light, 0, matrixStack, vertexConsumerProvider, entity.getWorld(), 0);
+        //?} else {
+        //itemRenderer.renderItem(stack, ModelTransformationMode.GROUND, false, matrixStack, vertexConsumerProvider, light, 0, itemRenderer.getModel(stack, entity.getWorld(), null, 0));
+        //?}
+
+        matrixStack.pop();
+
+        if(entity.getCustomName() != null) {
+            this.renderLabelIfPresent(livingEntityRenderState, livingEntityRenderState.customName, matrixStack, vertexConsumerProvider, light);
+        }
+    }
+}
+//?} else {
+/*public class PlayerGraveRenderer extends LivingEntityRenderer<PlayerGraveEntity, PlayerGraveEntityModel<PlayerGraveEntity>> {
 
     public PlayerGraveRenderer(EntityRendererFactory.Context ctx) {
         super(ctx, new PlayerGraveEntityModel<>(), 0.3f);
@@ -44,8 +119,10 @@ public class PlayerGraveRenderer extends LivingEntityRenderer<PlayerGraveEntity,
             this.renderLabelIfPresent(entity, entity.getCustomName(), matrixStack, vertexConsumers, light, tickDelta);
         }
     }
+
     @Override
     public Identifier getTexture(PlayerGraveEntity entity) {
         return null;
     }
 }
+*///?}

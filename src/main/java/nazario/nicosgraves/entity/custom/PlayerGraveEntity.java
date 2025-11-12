@@ -1,9 +1,9 @@
 package nazario.nicosgraves.entity.custom;
 
-import com.mojang.authlib.GameProfile;
 import nazario.nicosgraves.api.SoulboundItem;
 import nazario.nicosgraves.util.ModGamerules;
 import nazario.nicosgraves.util.ModTags;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.ItemEntity;
@@ -22,6 +22,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
@@ -31,6 +32,12 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+
+//? >=1.21.2 {
+//?} else {
+/*import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.attribute.EntityAttributes;
+*///?}
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -47,12 +54,22 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         this.inventory = DefaultedList.ofSize(MAX_SIZE, ItemStack.EMPTY);
     }
 
-    public static DefaultAttributeContainer.Builder createAttributes() {
-        return LivingEntity.createLivingAttributes()
+    public static FabricEntityType.Builder.Living<PlayerGraveEntity> createAttributes(FabricEntityType.Builder.Living<PlayerGraveEntity> builder) {
+        //? <1.21.2 {
+        /*return builder.defaultAttributes(() -> LivingEntity.createLivingAttributes()
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0f)
                 .add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 100f)
-                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 0f);
+                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 0f)
+        );
+        *///?} else {
+        return builder.defaultAttributes(() -> LivingEntity.createLivingAttributes()
+                .add(EntityAttributes.MOVEMENT_SPEED, 0)
+                .add(EntityAttributes.KNOCKBACK_RESISTANCE, 100)
+                .add(EntityAttributes.FOLLOW_RANGE, 0)
+        );
+        //?}
     }
+
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
@@ -107,16 +124,30 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         }
     }
 
+    //? >=1.21.2 {
     @Override
+    public void kill(ServerWorld world) {
+        this.kill();
+    }
+    //?}
+
+
     public void kill() {
         this.dropInventory();
         this.discard();
     }
 
+    //? >=1.21.2 {
     @Override
+    public boolean damage(ServerWorld world, DamageSource source, float amount) {
+        return this.damage(source, amount);
+    }
+    //?}
+
+
     public boolean damage(DamageSource source, float amount) {
-        if (source.getAttacker() instanceof PlayerEntity player) {
-            if (getWorld().getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && !this.getOwnerUUID().equals(player.getUuid())) {
+        if (source.getAttacker() instanceof PlayerEntity player && getWorld() instanceof ServerWorld serverWorld) {
+            if (serverWorld.getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && !this.getOwnerUUID().equals(player.getUuid())) {
                 player.sendMessage(Text.translatable("message.nicos_graves.not_owner").formatted(Formatting.RED), true);
                 return false;
             }
@@ -149,7 +180,14 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         return ActionResult.SUCCESS; // Prevents further interaction processing
     }
 
+
+    //? >=1.21.2 {
     @Override
+    protected void dropInventory(ServerWorld world) {
+        this.dropInventory();
+    }
+    //?}
+
     protected void dropInventory() {
         for(int i = 0;i<inventory.size();i++) {
             ItemEntity itemEntity = new ItemEntity(EntityType.ITEM, getWorld());
@@ -289,5 +327,19 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     public void setLootTableSeed(long lootTableSeed) {
 
     }
+
+    //? <1.21.2 {
+    /*//If you think this is not important think twice and run your game with a build jar without it, it will just crash and burn when you die.
+    public RegistryKey<LootTable> method_42276() {
+        return null;
+    }
+
+    *///?} else {
+    @Override
+    public @Nullable RegistryKey<LootTable> getLootTable() {
+        return null;
+    }
+    //?}
+
     //endregion
 }

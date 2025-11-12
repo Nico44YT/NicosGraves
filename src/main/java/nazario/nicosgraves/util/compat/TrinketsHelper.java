@@ -1,6 +1,7 @@
 package nazario.nicosgraves.util.compat;
 
-import dev.emi.trinkets.api.TrinketComponent;
+//? <1.21.2 {
+/*import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketsApi;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
@@ -32,3 +33,4 @@ public class TrinketsHelper {
         });
     }
 }
+*///?}
