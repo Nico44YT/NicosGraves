@@ -1,6 +1,7 @@
 package nazario.nicosgraves.entity.custom;
 
-import nazario.nicosgraves.NicosGraves;
+//? >=1.21.9 {
+/*import nazario.nicosgraves.NicosGraves;
 import nazario.nicosgraves.api.SoulboundItem;
 import nazario.nicosgraves.util.ModGamerules;
 import nazario.nicosgraves.util.ModTags;
@@ -9,7 +10,102 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.vehicle.VehicleInventory;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.item.*;
+import net.minecraft.loot.LootTable;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.screen.GenericContainerScreenHandler;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
+import net.minecraft.text.Text;
+import net.minecraft.util.*;
+import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+*///?} else >=1.21.5 {
+/*import nazario.nicosgraves.NicosGraves;
+import nazario.nicosgraves.api.SoulboundItem;
+import nazario.nicosgraves.util.ModGamerules;
+import nazario.nicosgraves.util.ModTags;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityType;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.vehicle.VehicleInventory;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.item.*;
+import net.minecraft.loot.LootTable;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.screen.GenericContainerScreenHandler;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.world.ServerWorld;
+//? >=1.21.6 {
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
+//?}
+import net.minecraft.text.Text;
+import net.minecraft.util.*;
+import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+*///?} else >=1.21.2 {
+/*import nazario.nicosgraves.api.SoulboundItem;
+import nazario.nicosgraves.util.ModGamerules;
+import nazario.nicosgraves.util.ModTags;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityType;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.vehicle.VehicleInventory;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.item.*;
+import net.minecraft.loot.LootTable;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.screen.GenericContainerScreenHandler;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Arm;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+*///?} else {
+import nazario.nicosgraves.api.SoulboundItem;
+import nazario.nicosgraves.util.ModGamerules;
+import nazario.nicosgraves.util.ModTags;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityType;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,16 +126,10 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-
-//? >=1.21.2 {
-//?} else {
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
 //?}
 
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class PlayerGraveEntity extends LivingEntity implements VehicleInventory {
 
@@ -69,18 +159,40 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         *///?}
     }
 
+    //? >=1.21.6 {
 
+    /*@Override
+    protected void readCustomData(ReadView view) {
+        super.readCustomData(view);
+
+        Inventories.readData(view, this.getInventory());
+        view.read("owner", Uuids.CODEC).ifPresentOrElse(this::setOwnerUUID, () -> NicosGraves.LOGGER.warn("Owner UUID not found in grave."));
+    }
+
+    @Override
+    protected void writeCustomData(WriteView view) {
+        super.writeCustomData(view);
+
+        Inventories.writeData(view, this.getInventory());
+        view.putNullable("owner", Uuids.CODEC, this.owner);
+    }
+
+    *///?} else {
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         super.readCustomDataFromNbt(nbt);
 
         //? >=1.21.5 {
-        /*nbt.getCompound("inventory").ifPresentOrElse(presentNbt -> Inventories.readNbt(presentNbt, this.getInventory(), getWorld().getRegistryManager()), () -> NicosGraves.LOGGER.warn("No inventory found in grave."));
+        /*nbt.getCompound("inventory").ifPresentOrElse(this::setInventoryFromNbt, () -> NicosGraves.LOGGER.warn("No inventory found in grave."));
         nbt.get("owner", Uuids.CODEC).ifPresentOrElse(this::setOwnerUUID, () -> NicosGraves.LOGGER.warn("Owner UUID not found in grave."));
         *///?} else {
         Inventories.readNbt(nbt.getCompound("inventory"), this.getInventory(), getWorld().getRegistryManager());
         this.owner = nbt.getUuid("owner");
         //?}
+    }
+
+    public void setInventoryFromNbt(NbtCompound inventoryNbt) {
+        Inventories.readNbt(inventoryNbt, this.getInventory(), getWorld().getRegistryManager());
     }
 
     @Override
@@ -90,13 +202,15 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         NbtCompound inventoryNbt = new NbtCompound();
         Inventories.writeNbt(inventoryNbt, this.getInventory(), getWorld().getRegistryManager());
 
-        nbt.put("inventory", inventoryNbt);
         //? >=1.21.5 {
-        /*nbt.put("owner", Uuids.CODEC, this.owner);
+        /*nbt.put("inventory", NbtCompound.CODEC, inventoryNbt);
+        nbt.put("owner", Uuids.CODEC, this.owner);
         *///?} else {
+        nbt.put("inventory", inventoryNbt);
         nbt.putUuid("owner", this.owner);
         //?}
     }
+    //?}
 
     private void setOwnerUUID(UUID uuid) {
         this.owner = uuid;
@@ -158,14 +272,19 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
 
 
     public boolean damage(DamageSource source, float amount) {
-        if (source.getAttacker() instanceof PlayerEntity player && getWorld() instanceof ServerWorld serverWorld) {
+        //? >=1.21.9 {
+        /*World world = this.getEntityWorld();
+        *///?} else {
+        World world = this.getWorld();
+        //?}
+
+        if (source.getAttacker() instanceof PlayerEntity player && world instanceof ServerWorld serverWorld) {
             if (serverWorld.getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && !this.getOwnerUUID().equals(player.getUuid())) {
                 player.sendMessage(Text.translatable("message.nicos_graves.not_owner").formatted(Formatting.RED), true);
                 return false;
             }
 
             if (player.isSneaking()) {
-                if (getWorld().isClient) return true;
 
                 this.dropInventory();
                 this.discard();
@@ -177,6 +296,12 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
 
     @Override
     public ActionResult interact(PlayerEntity player, Hand hand) {
+        //? >=1.21.9 {
+        /*World world = player.getEntityWorld();
+        *///?} else {
+        World world = player.getWorld();
+        //?}
+
         if(player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof BowItem ||
                 player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof ShieldItem ||
                 player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof TridentItem ||
@@ -184,7 +309,12 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
                 player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof CrossbowItem
         ) return ActionResult.PASS;
 
-        if (player.getWorld().isClient) {
+        if (world.isClient()) {
+            return ActionResult.PASS;
+        }
+
+        if (world instanceof ServerWorld serverWorld && serverWorld.getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && this.owner != null && !player.getUuid().equals(this.owner)) {
+            player.sendMessage(Text.translatable("message.nicos_graves.not_owner").formatted(Formatting.RED), true);
             return ActionResult.PASS;
         }
 
@@ -201,19 +331,36 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     *///?}
 
     protected void dropInventory() {
+        //? >=1.21.9 {
+        /*World world = this.getEntityWorld();
+        *///?} else {
+        World world = this.getWorld();
+        //?}
+
         for(int i = 0;i<inventory.size();i++) {
-            ItemEntity itemEntity = new ItemEntity(EntityType.ITEM, getWorld());
+            ItemEntity itemEntity = new ItemEntity(EntityType.ITEM, world);
 
             itemEntity.setStack(inventory.get(i));
-            itemEntity.setPosition(this.getPos());
 
-            getWorld().spawnEntity(itemEntity);
+            //? >=1.21.9 {
+            /*itemEntity.setPosition(this.getEntityPos());
+            *///?} else {
+            itemEntity.setPosition(this.getPos());
+            //?}
+
+            world.spawnEntity(itemEntity);
         }
         this.clearInventory();
     }
 
     public void addInventoryStackCheckSoulbound(ItemStack stack, PlayerEntity victimPlayer) {
-        if(stack.getItem().getRegistryEntry().isIn(ModTags.ItemTags.SOULBOUND_ITEMS) || (stack.getItem() instanceof SoulboundItem soulboundItem && soulboundItem.isRetained(stack, victimPlayer, victimPlayer.getWorld()))) return;
+        //? >=1.21.9 {
+        /*World world = victimPlayer.getEntityWorld();
+        *///?} else {
+        World world = victimPlayer.getWorld();
+        //?}
+
+        if(stack.getItem().getRegistryEntry().isIn(ModTags.ItemTags.SOULBOUND_ITEMS) || (stack.getItem() instanceof SoulboundItem soulboundItem && soulboundItem.isRetained(stack, victimPlayer, world))) return;
         this.addInventoryStack(stack);
     }
 
@@ -350,6 +497,12 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
     /*@Override
     public @Nullable RegistryKey<LootTable> getLootTable() {
         return null;
+    }
+    *///?}
+
+    //? <1.21.9 && >1.21.6 {
+    /*public @Nullable World method_37908() {
+        return this.world;
     }
     *///?}
 
