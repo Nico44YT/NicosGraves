@@ -105,3 +105,24 @@ publishing {
         // retrieving dependencies.
     }
 }
+
+tasks.register("collect-jars") {
+    group = "build"
+    description = "Moves this version's built jar into the root build/libs folder."
+
+    doLast {
+        def jarDir = file("$buildDir/libs")
+        def rootLibs = rootProject.layout.buildDirectory.dir("collected-jars").get().asFile
+        rootLibs.mkdirs()
+
+        jarDir.listFiles()?.each { file ->
+            if (file.name.endsWith(".jar")) {
+                copy {
+                    from file
+                    into rootLibs
+                    rename { file.name } // keep name as-is
+                }
+            }
+        }
+    }
+}
