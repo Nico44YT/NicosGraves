@@ -3,7 +3,7 @@ package nazario.nicosgraves.entity.custom;
 //? >=1.21.9 {
 /*import nazario.nicosgraves.NicosGraves;
 import nazario.nicosgraves.api.SoulboundItem;
-import nazario.nicosgraves.util.ModGamerules;
+import nazario.nicosgraves.util.GraveHelper;
 import nazario.nicosgraves.util.ModTags;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityType;
 import net.minecraft.entity.EntityType;
@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 *///?} else >=1.21.5 {
 /*import nazario.nicosgraves.NicosGraves;
 import nazario.nicosgraves.api.SoulboundItem;
-import nazario.nicosgraves.util.ModGamerules;
+import nazario.nicosgraves.util.GraveHelper;
 import nazario.nicosgraves.util.ModTags;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityType;
 import net.minecraft.entity.EntityType;
@@ -56,9 +56,9 @@ import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.world.ServerWorld;
 //? >=1.21.6 {
-import net.minecraft.storage.ReadView;
+/^import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
-//?}
+^///?}
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.util.collection.DefaultedList;
@@ -67,7 +67,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 *///?} else >=1.21.2 {
 /*import nazario.nicosgraves.api.SoulboundItem;
-import nazario.nicosgraves.util.ModGamerules;
+import nazario.nicosgraves.util.GraveHelper;
 import nazario.nicosgraves.util.ModTags;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityType;
 import net.minecraft.entity.EntityType;
@@ -99,7 +99,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 *///?} else {
 import nazario.nicosgraves.api.SoulboundItem;
-import nazario.nicosgraves.util.ModGamerules;
+import nazario.nicosgraves.util.GraveHelper;
 import nazario.nicosgraves.util.ModTags;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityType;
 import net.minecraft.entity.EntityType;
@@ -279,7 +279,8 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
         //?}
 
         if (source.getAttacker() instanceof PlayerEntity player && world instanceof ServerWorld serverWorld) {
-            if (serverWorld.getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && !this.getOwnerUUID().equals(player.getUuid())) {
+
+            if (!GraveHelper.hasPlayerAccess(this, player, serverWorld)) {
                 player.sendMessage(Text.translatable("message.nicos_graves.not_owner").formatted(Formatting.RED), true);
                 return false;
             }
@@ -313,7 +314,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
             return ActionResult.PASS;
         }
 
-        if (world instanceof ServerWorld serverWorld && serverWorld.getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && this.owner != null && !player.getUuid().equals(this.owner)) {
+        if (world instanceof ServerWorld serverWorld && !GraveHelper.hasPlayerAccess(this, player, serverWorld)) {
             player.sendMessage(Text.translatable("message.nicos_graves.not_owner").formatted(Formatting.RED), true);
             return ActionResult.PASS;
         }
