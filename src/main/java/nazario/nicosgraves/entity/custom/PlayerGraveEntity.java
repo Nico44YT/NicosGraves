@@ -1,7 +1,7 @@
 package nazario.nicosgraves.entity.custom;
 
 import nazario.nicosgraves.api.SoulboundItem;
-import nazario.nicosgraves.util.ModGamerules;
+import nazario.nicosgraves.util.GraveHelper;
 import nazario.nicosgraves.util.ModTags;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
@@ -18,6 +18,7 @@ import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.util.collection.DefaultedList;
@@ -114,8 +115,8 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
 
     @Override
     public boolean damage(DamageSource source, float amount) {
-        if(source.getAttacker() instanceof PlayerEntity player) {
-            if(getWorld().getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && !this.getOwnerUUID().equals(player.getUuid())) {
+        if(source.getAttacker() instanceof PlayerEntity player && player.getWorld() instanceof ServerWorld serverWorld) {
+            if (!GraveHelper.hasPlayerAccess(this, player, serverWorld)) {
                 player.sendMessage(Text.translatable("message.nicos_graves.not_owner").formatted(Formatting.RED), true);
                 return false;
             }
@@ -144,7 +145,7 @@ public class PlayerGraveEntity extends LivingEntity implements VehicleInventory 
             return ActionResult.PASS;
         }
 
-        if (getEntityWorld().getGameRules().getBoolean(ModGamerules.ONLY_OWNER_ACCESS) && this.owner != null && !player.getUuid().equals(this.owner)) {
+        if (world instanceof ServerWorld serverWorld && !GraveHelper.hasPlayerAccess(this, player, serverWorld)) {
             player.sendMessage(Text.translatable("message.nicos_graves.not_owner").formatted(Formatting.RED), true);
             return ActionResult.PASS;
         }

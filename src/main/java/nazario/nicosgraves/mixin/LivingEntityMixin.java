@@ -10,7 +10,9 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.scoreboard.Team;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,15 +25,16 @@ public abstract class LivingEntityMixin {
     private void grimoire$onDeathDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity thisEntity = (LivingEntity) (Object) this;
 
-        if (thisEntity instanceof PlayerEntity victimPlayer) {
+        if (thisEntity instanceof PlayerEntity victimPlayer && victimPlayer.getWorld() instanceof ServerWorld serverWorld) {
 
-            if (victimPlayer.getWorld() == null) return;
-            if (!victimPlayer.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY) && victimPlayer.getWorld().getGameRules().getBoolean(ModGamerules.SPAWN_PLAYER_GRAVES)) {
+            if (!serverWorld.getGameRules().getBoolean(GameRules.KEEP_INVENTORY) && serverWorld.getGameRules().getBoolean(ModGamerules.SPAWN_PLAYER_GRAVES)) {
 
                 PlayerGraveEntity playerGrave = new PlayerGraveEntity(ModEntities.PLAYER_GRAVE, victimPlayer.getWorld());
                 playerGrave.setPosition(victimPlayer.getPos());
                 playerGrave.setOwner(victimPlayer);
                 playerGrave.resetInventory();
+
+                if(victimPlayer.getScoreboardTeam() instanceof Team team) serverWorld.getScoreboard().addPlayerToTeam(playerGrave.getEntityName(), team);
 
                 if (FabricLoader.getInstance().isModLoaded("yyzsbackpack") && victimPlayer instanceof ServerPlayerEntity serverPlayer) {
                     try {
